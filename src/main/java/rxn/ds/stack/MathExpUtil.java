@@ -1,4 +1,4 @@
-package rxn.utils;
+package rxn.ds.stack;
 
 import java.util.Stack;
 

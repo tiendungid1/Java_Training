@@ -8,4 +8,8 @@ public interface Queue<E> {
   boolean empty();
 
   int size();
+
+  E front();
+
+  E rear();
 }

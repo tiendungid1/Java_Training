@@ -35,3 +35,5 @@ build/
 .DS_Store
 
 resources
+src/main/java/rxn/jdbc/old
+logs

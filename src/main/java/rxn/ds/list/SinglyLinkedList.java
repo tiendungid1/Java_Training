@@ -67,6 +67,7 @@ public class SinglyLinkedList<E> implements List<E>, Queue<E> {
     size++;
   }
 
+  @Override
   public void addLast(E data) {
     SimpleNode<E> temp = new SimpleNode<>(data);
 
@@ -144,6 +145,16 @@ public class SinglyLinkedList<E> implements List<E>, Queue<E> {
     size--;
 
     return removingData;
+  }
+
+  @Override
+  public E front() {
+    return head.getData();
+  }
+
+  @Override
+  public E rear() {
+    return tail.getData();
   }
 
   @Override

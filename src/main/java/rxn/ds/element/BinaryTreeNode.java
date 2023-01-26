@@ -41,4 +41,9 @@ public class BinaryTreeNode<E extends Comparable<E>> {
   public void increaseCount() {
     count++;
   }
+
+  public void decreaseCount() {
+    count--;
+  }
+  ;
 }

@@ -9,9 +9,9 @@ public interface Tree<E extends Comparable<E>> {
 
   void insert(E data);
 
-  boolean delete(E data);
+  boolean delete(E data) throws TreeIsEmptyException, NoSuchNodeException;
 
-  E get(E data);
+  E get(E data) throws TreeIsEmptyException, NoSuchNodeException;
 
-  void levelOrderTraversal();
+  void printLevelOrder() throws TreeIsEmptyException;
 }
