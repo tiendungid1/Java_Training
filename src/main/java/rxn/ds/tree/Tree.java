@@ -1,17 +1,23 @@
 package rxn.ds.tree;
 
-import rxn.ds.element.BinaryTreeNode;
-
 public interface Tree<E extends Comparable<E>> {
-  boolean empty();
+    boolean isEmpty();
 
-  int height();
+    boolean isBinary();
 
-  void insert(E data);
+    boolean isBalanced();
 
-  boolean delete(E data) throws TreeIsEmptyException, NoSuchNodeException;
+    int height();
 
-  E get(E data) throws TreeIsEmptyException, NoSuchNodeException;
+    void add(E e);
 
-  void printLevelOrder() throws TreeIsEmptyException;
+    boolean remove(E e);
+
+    boolean exists(E e);
+
+    void print(TraversalWay way, boolean inline);
+
+    enum TraversalWay {
+        LEVELORDER, INORDER, PREORDER, POSTORDER
+    }
 }

@@ -1,15 +1,28 @@
 package rxn.ds.queue;
 
 public interface Queue<E> {
-  void addLast(E data);
+    /**
+     * Add a new element to the end of queue.
+     *
+     * @param e The element to add to queue.
+     * @return true if the element has been added successfully, false otherwise.
+     */
+    boolean push(E e);
 
-  E removeFirst();
+    /**
+     * Consume an element at the beginning of queue.
+     *
+     * @return the removed element or null if queue is empty.
+     */
+    E pop();
 
-  boolean empty();
+    boolean isEmpty();
 
-  int size();
+    int size();
 
-  E front();
+    E front();
 
-  E rear();
+    E rear();
+
+    void print(boolean inline);
 }

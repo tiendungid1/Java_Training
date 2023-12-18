@@ -1,219 +1,309 @@
 package rxn.ds.list;
 
 import rxn.ds.element.SimpleNode;
-import rxn.ds.queue.Queue;
 
-public class SinglyLinkedList<E> implements List<E>, Queue<E> {
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-  private SimpleNode<E> head;
-  private SimpleNode<E> tail;
-  private int size;
+public class SinglyLinkedList<E> implements List<E> {
 
-  @Override
-  public int size() {
-    return size;
-  }
+    private SimpleNode<E> head;
+    private SimpleNode<E> tail;
+    private int size;
 
-  @Override
-  public boolean empty() {
-    return size == 0;
-  }
-
-  @Override
-  public boolean contains(E data) {
-    if (empty()) return false;
-
-    SimpleNode<E> temp = head;
-
-    while (temp != null) {
-      if (temp.getData() == data) return true;
-      temp = temp.getNext();
+    @Override
+    public int size() {
+        return size;
     }
 
-    return false;
-  }
-
-  @Override
-  public E get(int index) {
-    if (empty()) return null;
-
-    if (index < 0 || index > size - 1) {
-      throw new IndexOutOfBoundsException(index);
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
     }
 
-    if (index == 0) return head.getData();
+    @Override
+    public boolean contains(Object o) {
+        if (isEmpty()) {
+            return false;
+        }
 
-    if (index == size - 1) return tail.getData();
+        SimpleNode<E> temp = head;
 
-    SimpleNode<E> temp = head;
+        while (temp != null) {
+            if (temp.data.equals(o)) {
+                return true;
+            }
+            temp = temp.next;
+        }
 
-    for (int i = 0; i <= index; i++) {
-      temp = temp.getNext();
+        return false;
     }
 
-    return temp.getData();
-  }
-
-  public void addFirst(E data) {
-    SimpleNode<E> temp = new SimpleNode<>(data);
-
-    if (empty()) {
-      tail = temp;
-      head = temp; // avoid null pointer exception
+    @Override
+    public boolean add(E e) {
+        addLast(e);
+        return true;
     }
 
-    temp.setNext(head);
-    head = temp;
-    size++;
-  }
+    @Override
+    public boolean remove(Object o) {
+        if (isEmpty()) {
+            return false;
+        }
 
-  @Override
-  public void addLast(E data) {
-    SimpleNode<E> temp = new SimpleNode<>(data);
+        // left is element before removing element, right is removing element
+        SimpleNode<E> left = head;
+        SimpleNode<E> right = head;
 
-    if (empty()) {
-      head = temp;
-      tail = temp; // avoid null pointer exception
+        while (right.next != null) {
+            left = right;
+            if (right.data.equals(o)) {
+                break;
+            }
+            right = right.next;
+        }
+
+        // Only one node in the list and node's element == removing element
+        // or
+        // The first node in the list has element == removing element
+        if (left.data == right.data) {
+            Object r = removeFirst();
+            return true;
+        }
+
+        // Only one node in the list and node's element != removing element
+        if (!left.data.equals(right.data)) {
+            return false;
+        }
+
+        // The data to be deleted does not exist
+        if (!right.data.equals(o)) {
+            return false;
+        }
+
+        // The others cases
+        left.next = right.next;
+        size--;
+
+        return true;
     }
 
-    tail.setNext(temp);
-    tail = temp;
-    size++;
-  }
+    @Override
+    public boolean containsAll(Collection<E> c) {
+        if (c.isEmpty()) {
+            return false;
+        }
 
-  private void insert(E data, int index) {
-    SimpleNode<E> temp = head;
+        Set<E> set = new HashSet<>(c);
+        SimpleNode<E> temp = head;
+        while (temp.next != null) {
+            if (!set.contains(temp.data)) {
+                return false;
+            }
+            temp = temp.next;
+        }
 
-    for (int i = 0; i < index - 1; i++) {
-      temp = temp.getNext();
+        return true;
     }
 
-    SimpleNode<E> node = new SimpleNode<>(data);
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+        if (c.isEmpty()) {
+            return false;
+        }
 
-    node.setNext(temp.getNext());
-    temp.setNext(node);
-    size++;
-  }
+        c.forEach(element -> {
+            SimpleNode<E> newNode = new SimpleNode<>(element);
+            tail.next = newNode;
+            tail = newNode;
+        });
 
-  public void add(E data, int index) {
-    if (empty()) {
-      addLast(data);
-      return;
+        return true;
     }
 
-    if (index < 0 || index > size) {
-      throw new IndexOutOfBoundsException(index);
+    @Override
+    public boolean removeAll(Collection<E> c) {
+        if (c.isEmpty()) {
+            return false;
+        }
+
+        boolean listHasChanged = false;
+
+        for (E e : c) {
+            if (remove(e)) {
+                listHasChanged = true;
+            }
+        }
+
+        return listHasChanged;
     }
 
-    if (index == 0) {
-      addFirst(data);
-      return;
+    @Override
+    public void clear() {
+        head = null;
+        tail = null;
     }
 
-    if (index == size) {
-      addLast(data);
-      return;
+    @Override
+    public E get(int index) {
+        if (isEmpty()) {
+            return null;
+        }
+
+        if (index < 0 || index > size - 1) {
+            return null;
+        }
+
+        if (index == 0) {
+            return head.data;
+        }
+
+        if (index == size - 1) {
+            return tail.data;
+        }
+
+        SimpleNode<E> temp = head;
+
+        for (int i = 0; i <= index; i++) {
+            temp = temp.next;
+        }
+
+        return temp.data;
     }
 
-    insert(data, index);
-  }
-
-  public E removeFirst() {
-    if (empty()) throw new IllegalStateException("List is empty");
-
-    SimpleNode<E> temp = head;
-    head = head.getNext();
-    temp.setNext(null);
-    size--;
-
-    return temp.getData();
-  }
-
-  public E removeLast() {
-    if (empty()) throw new IllegalStateException("List is empty");
-
-    SimpleNode<E> temp = head;
-
-    for (int i = 0; i < size - 2; i++) {
-      temp = temp.getNext();
+    @Override
+    public E set(int index, E element) {
+        return null;
     }
 
-    E removingData = tail.getData();
+    @Override
+    public void add(int index, E element) {
+        if (isEmpty()) {
+            addLast(element);
+            return;
+        }
 
-    tail = temp;
-    temp.setNext(null);
-    size--;
+        if (index < 0 || index > size) {
+            return;
+        }
 
-    return removingData;
-  }
+        if (index == 0) {
+            addFirst(element);
+            return;
+        }
 
-  @Override
-  public E front() {
-    return head.getData();
-  }
+        if (index == size) {
+            addLast(element);
+            return;
+        }
 
-  @Override
-  public E rear() {
-    return tail.getData();
-  }
+        SimpleNode<E> temp = head;
 
-  @Override
-  public E remove(E data) throws NoSuchFieldException {
-    if (empty()) throw new IllegalStateException("List is empty");
+        for (int i = 0; i < index - 1; i++) {
+            temp = temp.next;
+        }
 
-    SimpleNode<E> left = head;
-    SimpleNode<E> right = head;
+        SimpleNode<E> newNode = new SimpleNode<>(element);
 
-    while (right.getNext() != null) {
-      left = right;
-      if (right.getData() == data) break;
-      right = right.getNext();
+        newNode.next = temp.next;
+        temp.next = newNode;
+        size++;
     }
 
-    // Case: Only one SimpleNode in the list and that SimpleNode's data == removing data
-    // Case: The first SimpleNode in the list has data == removing data
-    if (left.getData() == right.getData()) {
-      return removeFirst();
+    @Override
+    public E remove(int index) {
+        if (isEmpty()) {
+            return null;
+        }
+
+        if (index < 0 || index > size - 1) {
+            return null;
+        }
+
+        if (index == 0) {
+            return removeFirst();
+        }
+
+        if (index == size - 1) {
+            return removeLast();
+        }
+
+        SimpleNode<E> temp = head;
+
+        for (int i = 0; i < index - 1; i++) {
+            temp = temp.next;
+        }
+
+        // temp.next is the removing node
+        SimpleNode<E> removingNode = temp.next;
+        temp.next = removingNode.next;
+        size--;
+
+        return removingNode.data;
     }
 
-    // Case: Only one SimpleNode in the list and that SimpleNode's data != removing data
-    if (left.getData() != right.getData())
-      throw new NoSuchFieldException("The data to be deleted does not exist");
+    @Override
+    public int indexOf(Object o) {
+        SimpleNode<E> temp = head;
 
-    // Case: The data to be deleted does not exist
-    if (right.getData() != data)
-      throw new NoSuchFieldException("The data to be deleted does not exist");
+        for (int i = 0; i < size; i++) {
+            if (temp.data.equals(o)) {
+                return i;
+            }
+            temp = temp.next;
+        }
 
-    // The others cases
-    left.setNext(right.getNext());
-    size--;
-
-    return right.getData();
-  }
-
-  @Override
-  public E remove(int index) {
-    if (empty()) throw new IllegalStateException("List is empty");
-
-    if (index < 0 || index > size - 1) {
-      throw new IndexOutOfBoundsException(index);
+        return -1;
     }
 
-    if (index == 0) return removeFirst();
+    private E removeLast() {
+        SimpleNode<E> temp = head;
 
-    if (index == size - 1) return removeLast();
+        for (int i = 0; i < size - 2; i++) {
+            temp = temp.next;
+        }
 
-    SimpleNode<E> temp = head;
+        E removingData = tail.data;
 
-    for (int i = 0; i < index - 1; i++) {
-      temp = temp.getNext();
+        tail = temp;
+        temp.next = null;
+        size--;
+
+        return removingData;
     }
 
-    // temp.getNext() is the removing SimpleNode
-    SimpleNode<E> removingNode = temp.getNext();
-    temp.setNext(removingNode.getNext());
-    size--;
+    private void addFirst(E e) {
+        SimpleNode<E> newNode = new SimpleNode<>(e);
 
-    return removingNode.getData();
-  }
+        if (isEmpty()) {
+            tail = newNode;
+            head = newNode; // avoid null pointer exception
+        }
+
+        newNode.next = head;
+        head = newNode;
+        size++;
+    }
+
+    private void addLast(E e) {
+        SimpleNode<E> newNode = new SimpleNode<>(e);
+
+        if (isEmpty()) {
+            head = newNode;
+            tail = newNode; // avoid null pointer exception
+        }
+
+        tail.next = newNode;
+        tail = newNode;
+        size++;
+    }
+
+    private E removeFirst() {
+        SimpleNode<E> temp = head;
+        head = head.next;
+        temp.next = null;
+        size--;
+        return temp.data;
+    }
 }
