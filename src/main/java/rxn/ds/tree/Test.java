@@ -11,5 +11,10 @@ public class Test {
         tree.print(Tree.TraversalWay.INORDER, true);
         System.out.println();
         System.out.println(tree.isBinary());
+
+        Object[] objects = new Object[10];
+        for (Object o : objects) {
+            System.out.println(o);
+        }
     }
 }

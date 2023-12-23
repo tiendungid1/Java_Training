@@ -2,11 +2,11 @@ package rxn.ds.list;
 
 public class Test {
     public static void main(String[] args) {
-        testColFunction();
+        testAddFunction();
     }
 
     private static void testAddFunction() {
-        ArrayList<Integer> list = new ArrayList<>(2);
+        List<Integer> list = new ArrayList<>(2);
         list.add(1);
         list.add(2);
         list.add(3);
@@ -15,11 +15,6 @@ public class Test {
         list.set(1, 10);
         list.add(2, 6);
         list.add(6, 12);
-        System.out.print("Element: ");
-        list.print(true);
-        list.clear();
-        list.print(true);
-        int a = list.get(1);
     }
 
     private static void testColFunction() {
@@ -42,7 +37,7 @@ public class Test {
         System.out.println(list.containsAll(temp));
 
         list.addAll(temp);
-        list.print(true);
+        //list.print(true);
         System.out.println();
 
         temp.remove(0);
@@ -50,13 +45,13 @@ public class Test {
         temp.add(10);
         temp.add(5);
         list.removeAll(temp);
-        list.print(true);
+        //list.print(true);
         System.out.println();
         list.remove(0);
         list.remove(0);
         list.remove(0);
         list.remove(0);
         list.remove(0);
-        list.print(true);
+        //list.print(true);
     }
 }

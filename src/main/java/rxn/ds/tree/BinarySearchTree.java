@@ -4,6 +4,8 @@ import rxn.ds.element.BinaryTreeNode;
 import rxn.ds.queue.CircularDeque;
 import rxn.ds.queue.Deque;
 
+import java.util.function.Consumer;
+
 public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
 
     private BinaryTreeNode<E> root;
@@ -13,32 +15,42 @@ public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
         return root == null;
     }
 
-    @Override
-    public boolean isBinary() {
-        return isBinary(root, true, true);
+    public boolean isBST() {
+        return isBST(root, null);
     }
 
-    private boolean isBinary(BinaryTreeNode<E> node, boolean greaterThanLeft, boolean lesserThanRight) {
-        if (node == null) {
+    private boolean isBST(BinaryTreeNode<E> current, BinaryTreeNode<E> previous) {
+        if (current == null) {
             return true;
         }
 
-        if (!(greaterThanLeft && lesserThanRight)) {
+        if (!isBST(current.left, previous)) {
             return false;
         }
 
-        isBinary(node.left, greaterThanLeft, lesserThanRight);
-        greaterThanLeft = node.left == null || node.data.compareTo(node.left.data) > 0;
+        if (previous != null && current.data.compareTo(previous.data) < 0) {
+            return false;
+        }
 
-        isBinary(node.right, greaterThanLeft, lesserThanRight);
-        lesserThanRight = node.right == null || node.data.compareTo(node.right.data) < 0;
+        previous = current;
 
-        return greaterThanLeft && lesserThanRight;
+        return isBST(current.right, previous);
     }
 
     @Override
     public boolean isBalanced() {
-        return false;
+        if (isEmpty()) {
+            return true;
+        }
+        return isBalanced(root);
+    }
+
+    private boolean isBalanced(BinaryTreeNode<E> node) {
+        int leftSubtreeHeight = height(node.left);
+        int rightSubtreeHeight = height(node.right);
+        int heightDiff = Math.abs(leftSubtreeHeight - rightSubtreeHeight);
+
+        return heightDiff <= 1 && isBalanced(node.left) && isBalanced(node.right);
     }
 
     @Override
@@ -81,8 +93,8 @@ public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
         if (isEmpty()) {
             return false;
         }
-        remove(root, e);
-        return true;
+        BinaryTreeNode<E> node = remove(root, e);
+        return node != null;
     }
 
     private BinaryTreeNode<E> remove(BinaryTreeNode<E> node, E e) {
@@ -124,124 +136,25 @@ public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
     }
 
     @Override
-    public boolean exists(E e) {
-        return exists(root, e);
+    public boolean contains(E e) {
+        return contains(root, e);
     }
 
-    private boolean exists(BinaryTreeNode<E> node, E e) {
+    private boolean contains(BinaryTreeNode<E> node, E e) {
         if (node == null) {
             return false;
         }
 
         if (e.compareTo(node.data) < 0) {
-            return exists(node.left, e);
+            return contains(node.left, e);
         } else if (e.compareTo(node.data) > 0) {
-            return exists(node.right, e);
+            return contains(node.right, e);
         } else {
             return true;
         }
     }
 
     @Override
-    public void print(TraversalWay way, boolean inline) {
-        switch (way) {
-            case LEVELORDER: {
-                printLevelOrder(inline);
-                break;
-            }
-            case PREORDER: {
-                printPreorder(root, inline);
-                break;
-            }
-            case INORDER: {
-                printInorder(root, inline);
-                break;
-            }
-            case POSTORDER: {
-                printPostorder(root, inline);
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Wrong traversal way");
-            }
-        }
-    }
-
-
-    private void printLevelOrder(boolean inline) {
-        if (isEmpty()) {
-            return;
-        }
-
-        Deque<BinaryTreeNode<E>> discoveredNodes = new CircularDeque<>(100);
-
-        discoveredNodes.push(root);
-
-        while (!discoveredNodes.isEmpty()) {
-            BinaryTreeNode<E> current = discoveredNodes.pop();
-
-            if (current.left != null) discoveredNodes.push(current.left);
-            if (current.right != null) discoveredNodes.push(current.right);
-
-            if (inline) {
-                System.out.print(current.data);
-                System.out.print(" ");
-                continue;
-            }
-
-            System.out.println(current.data);
-        }
-    }
-
-    private void printPreorder(BinaryTreeNode<E> node, boolean inline) {
-        if (node == null) {
-            return;
-        }
-
-        if (inline) {
-            System.out.print(node.data);
-            System.out.print(" ");
-        } else {
-            System.out.println(node.data);
-        }
-
-        printPreorder(node.left, inline);
-        printPreorder(node.right, inline);
-    }
-
-    private void printInorder(BinaryTreeNode<E> node, boolean inline) {
-        if (node == null) {
-            return;
-        }
-
-        printInorder(node.left, inline);
-
-        if (inline) {
-            System.out.print(node.data);
-            System.out.print(" ");
-        } else {
-            System.out.println(node.data);
-        }
-
-        printInorder(node.right, inline);
-    }
-
-    private void printPostorder(BinaryTreeNode<E> node, boolean inline) {
-        if (node == null) {
-            return;
-        }
-
-        printPostorder(node.left, inline);
-        printPostorder(node.right, inline);
-
-        if (inline) {
-            System.out.print(node.data);
-            System.out.print(" ");
-        } else {
-            System.out.println(node.data);
-        }
-    }
-
     public E min() {
         if (isEmpty()) {
             return null;
@@ -254,6 +167,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
         return min(node.left);
     }
 
+    @Override
     public E max() {
         if (isEmpty()) {
             return null;
@@ -264,5 +178,74 @@ public class BinarySearchTree<E extends Comparable<E>> implements Tree<E> {
     private E max(BinaryTreeNode<E> node) {
         if (node.right == null) return node.data;
         return max(node.right);
+    }
+
+    @Override
+    public void forEach(TraversalWay way, Consumer<? super E> action) {
+        switch (way) {
+            case LEVELORDER: {
+                levelorderProcessing(action);
+                break;
+            }
+            case PREORDER: {
+                preorderProcessing(root, action);
+                break;
+            }
+            case INORDER: {
+                inorderProcessing(root, action);
+                break;
+            }
+            case POSTORDER: {
+                postorderProcessing(root, action);
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Something went wrong");
+            }
+        }
+    }
+
+    private void levelorderProcessing(Consumer<? super E> action) {
+        if (isEmpty()) {
+            return;
+        }
+
+        Deque<BinaryTreeNode<E>> discoveredNodes = new CircularDeque<>((int) Math.pow(2, height()));
+
+        discoveredNodes.push(root);
+
+        while (!discoveredNodes.isEmpty()) {
+            BinaryTreeNode<E> current = discoveredNodes.pop();
+            if (current.left != null) discoveredNodes.push(current.left);
+            if (current.right != null) discoveredNodes.push(current.right);
+            action.accept(current.data);
+        }
+    }
+
+    private void preorderProcessing(BinaryTreeNode<E> node, Consumer<? super E> action) {
+        if (node == null) {
+            return;
+        }
+        action.accept(node.data);
+        preorderProcessing(node.left, action);
+        preorderProcessing(node.right, action);
+    }
+
+    private void inorderProcessing(BinaryTreeNode<E> node, Consumer<? super E> action) {
+        if (node == null) {
+            return;
+        }
+        inorderProcessing(node.left, action);
+        action.accept(node.data);
+        inorderProcessing(node.right, action);
+    }
+
+    private void postorderProcessing(BinaryTreeNode<E> node, Consumer<? super E> action) {
+        if (node == null) {
+            return;
+        }
+        postorderProcessing(node.left, action);
+        postorderProcessing(node.right, action);
+        action.accept(node.data);
     }
 }

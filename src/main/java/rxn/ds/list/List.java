@@ -7,7 +7,7 @@ import java.util.Collection;
  *
  * @param <E> the type parameter.
  */
-public interface List<E> {
+public interface List<E> extends Iterable<E> {
     /**
      * If this list contains more than Integer.MAX_VALUE elements, returns Integer.MAX_VALUE.
      *

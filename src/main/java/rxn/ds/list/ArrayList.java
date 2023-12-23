@@ -212,19 +212,6 @@ public class ArrayList<E> implements List<E> {
         arr = newArr;
     }
 
-    public void print(boolean inline) {
-        System.out.println("Capacity: " + capacity);
-        System.out.println("Size: " + size);
-        for (int i = 0; i < size; i++) {
-            if (inline) {
-                System.out.print(arr[i]);
-                System.out.print(" ");
-            } else {
-                System.out.println(arr[i]);
-            }
-        }
-    }
-
     private void expand() {
         if (size == capacity) {
             Object[] newArr = new Object[capacity * 2];
@@ -233,6 +220,7 @@ public class ArrayList<E> implements List<E> {
             capacity = capacity * 2;
         }
     }
+
 
     private void shrink() {
         if (size == Math.floor((double) capacity / 4)) {
@@ -251,5 +239,30 @@ public class ArrayList<E> implements List<E> {
     @SuppressWarnings("unchecked")
     private E elementData(Object data) {
         return (E) data;
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new ListIterator<>(this);
+    }
+
+    private static class ListIterator<E> implements Iterator<E> {
+
+        private final ArrayList<E> list;
+        private int currentIndex;
+
+        public ListIterator(ArrayList<E> list) {
+            this.list = list;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return list.get(currentIndex) != null;
+        }
+
+        @Override
+        public E next() {
+            return list.get(currentIndex++);
+        }
     }
 }

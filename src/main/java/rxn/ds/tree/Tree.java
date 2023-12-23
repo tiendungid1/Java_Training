@@ -1,9 +1,9 @@
 package rxn.ds.tree;
 
+import java.util.function.Consumer;
+
 public interface Tree<E extends Comparable<E>> {
     boolean isEmpty();
-
-    boolean isBinary();
 
     boolean isBalanced();
 
@@ -13,9 +13,13 @@ public interface Tree<E extends Comparable<E>> {
 
     boolean remove(E e);
 
-    boolean exists(E e);
+    boolean contains(E e);
 
-    void print(TraversalWay way, boolean inline);
+    E min();
+
+    E max();
+
+    void forEach(TraversalWay way, Consumer<? super E> action);
 
     enum TraversalWay {
         LEVELORDER, INORDER, PREORDER, POSTORDER

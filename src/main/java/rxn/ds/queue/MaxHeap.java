@@ -84,9 +84,7 @@ public class MaxHeap<E extends Comparable<E>> implements Heap<E> {
 
     @Override
     public void add(E e) {
-        if (size == capacity) {
-            expand();
-        }
+        expand();
         heap[size] = e;
         siftUp(size);
         size++;

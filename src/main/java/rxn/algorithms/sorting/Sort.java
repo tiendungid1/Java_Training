@@ -1,111 +1,205 @@
 package rxn.algorithms.sorting;
 
-import java.util.List;
+import rxn.ds.list.ArrayList;
+import rxn.ds.list.List;
+import rxn.ds.queue.CircularDeque;
+import rxn.ds.queue.Deque;
+
 import java.util.Random;
 
 public final class Sort {
-    private static void swap(List<Integer> list, int i, int j) {
-        int temp = list.get(i);
-        list.set(i, list.get(j));
-        list.set(j, temp);
-    }
 
-    private static boolean bubbleSwapAsc(List<Integer> list, int index) {
-        if (list.get(index) > list.get(index + 1)) {
-            swap(list, index, index + 1);
-            return false;
+    private static <E extends Comparable<E>> void selectionSort(List<E> list) {
+        for (int i = 0; i < list.size(); i++) {
+            int temp = i;
+
+            for (int j = i + 1; j < list.size(); j++) {
+                if (list.get(j).compareTo(list.get(temp)) < 0) {
+                    temp = j;
+                }
+            }
+
+            swap(list, i, temp);
         }
-        return true;
     }
 
-    private static boolean bubbleSwapDesc(List<Integer> list, int index) {
-        if (list.get(index) < list.get(index + 1)) {
-            swap(list, index, index + 1);
-            return false;
-        }
-        return true;
-    }
-
-    public static void bubbleSort(List<Integer> list, int direction) {
-        boolean isSorted;
+    private static <E extends Comparable<E>> void bubbleSort(List<E> list) {
+        boolean isSorted = true;
 
         for (int i = 0; i < list.size(); i++) {
-            isSorted = true;
-
             for (int j = 0; j < list.size() - i - 1; j++) {
-                if (direction == 1) {
-                    isSorted = bubbleSwapAsc(list, j);
+                if (list.get(j).compareTo(list.get(j + 1)) > 0) {
+                    swap(list, j, j + 1);
+                    isSorted = false;
                     continue;
                 }
-                isSorted = bubbleSwapDesc(list, j);
+                isSorted = true;
             }
 
             if (isSorted) break;
         }
     }
 
-    public static void quickSort(List<Integer> list, int direction) {
-        quickSortHidden(list, 0, list.size() - 1, direction);
+    private static <E extends Comparable<E>> void insertionSort(List<E> list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i; j > 0; j--) {
+                if (list.get(j).compareTo(list.get(j - 1)) >= 0) {
+                    break;
+                }
+                swap(list, j, j - 1);
+            }
+        }
     }
 
-    private static void quickSortHidden(List<Integer> list, int start, int end, int direction) {
+    private static <E extends Comparable<E>> void shellSort(List<E> list) {
+        int gap = 1;
+
+        // Calculate max gap for this array
+        while (gap < list.size() / 3) {
+            gap = 3 * gap + 1; // 1, 4, 13, 40, 121...
+        }
+
+        while (gap >= 1) {
+            for (int i = gap; i < list.size(); i++) {
+                for (int j = i; j >= gap; j = j - gap) {
+                    if (list.get(j).compareTo(list.get(j - gap)) >= 0) {
+                        break;
+                    }
+                    swap(list, j, j - gap);
+                }
+            }
+            gap = gap / 3;
+        }
+    }
+
+    private static <E extends Comparable<E>> void quickSort(List<E> list) {
+        quickSortHidden(list, 0, list.size() - 1);
+    }
+
+    private static <E extends Comparable<E>> void quickSortHidden(List<E> list, int start, int end) {
         if (start >= end) return;
-        int partitionIndex = randomizePartition(list, start, end, direction);
-        quickSortHidden(list, start, partitionIndex - 1, direction);
-        quickSortHidden(list, partitionIndex + 1, end, direction);
+        int partitionIndex = randomizePartition(list, start, end);
+        quickSortHidden(list, start, partitionIndex - 1);
+        quickSortHidden(list, partitionIndex + 1, end);
     }
 
-    private static int partition(List<Integer> list, int start, int end, int direction) {
-        int pivot = list.get(end);
+    private static <E extends Comparable<E>> int randomizePartition(List<E> list, int start, int end) {
+        Random random = new Random();
+        int randomPartitionIndex = random.nextInt(end - start) + start;
+        swap(list, randomPartitionIndex, end);
+        return partition(list, start, end);
+    }
+
+    private static <E extends Comparable<E>> int partition(List<E> list, int start, int end) {
+        E pivot = list.get(end);
         int partitionIndex = start;
 
         for (int i = start; i < end; i++) {
-            if (direction == 1) { // Sort asc
-                if (list.get(i) <= pivot) swap(list, i, partitionIndex++);
-                continue;
+            if (list.get(i).compareTo(pivot) <= 0) {
+                swap(list, i, partitionIndex++);
             }
-
-            // Sort desc
-            if (list.get(i) >= pivot) swap(list, i, partitionIndex++);
         }
 
         swap(list, partitionIndex, end);
         return partitionIndex;
     }
 
-    private static int randomizePartition(List<Integer> list, int start, int end, int direction) {
-        Random random = new Random();
-        int randomPartitionIndex = random.nextInt(end - start) + start;
-        swap(list, randomPartitionIndex, end);
-        return partition(list, start, end, direction);
+    private static <E extends Comparable<E>> void mergeSort(List<E> src) {
+        if (src.size() < 2) return;
+
+        int mid = src.size() / 2;
+        List<E> left = new ArrayList<>(mid);
+        List<E> right = new ArrayList<>(src.size() - mid);
+
+        for (int i = 0; i < mid; i++) {
+            left.set(i, src.get(i));
+        }
+
+        for (int i = mid; i < src.size(); i++) {
+            right.set(i, src.get(i));
+        }
+
+        mergeSort(left);
+        mergeSort(right);
+        merge(src, left, right);
     }
 
-    private static void merge(int[] a, int[] l, int[] r, int leftArrSize, int rightArrSize) {
-        int ai = 0, li = 0, ri = 0;
+    private static <E extends Comparable<E>> void merge(List<E> src, List<E> left, List<E> right) {
+        int si = 0, li = 0, ri = 0;
 
-        while (li < leftArrSize && ri < rightArrSize) {
-            if (l[li] <= r[ri]) {
-                a[ai++] = l[li++];
+        while (li < left.size() && ri < right.size()) {
+            if (left.get(li).compareTo(right.get(ri)) <= 0) {
+                src.set(si++, left.get(li++));
             } else {
-                a[ai++] = r[ri++];
+                src.set(si++, right.get(ri++));
             }
         }
 
-        while (li < leftArrSize) a[ai++] = l[li++];
-        while (ri < rightArrSize) a[ai++] = r[ri++];
+        while (li < left.size()) src.set(si++, left.get(li++));
+        while (ri < right.size()) src.set(si++, right.get(ri++));
     }
 
-    public static void mergeSort(int[] a, int arrSize) {
-        if (arrSize < 2) return;
+    private static <E> void swap(List<E> list, int i, int j) {
+        E temp = list.get(i);
+        list.set(i, list.get(j));
+        list.set(j, temp);
+    }
 
-        int mid = arrSize / 2;
-        int[] l = new int[mid], r = new int[arrSize - mid];
+    private <E> void reverseOrder(List<E> list) {
+        Deque<E> queue = new CircularDeque<>(list.size());
+        list.forEach(queue::push);
+        list.clear();
+        while (!queue.isEmpty()) list.add(queue.shift());
+    }
 
-      System.arraycopy(a, 0, l, 0, mid);
-      if (arrSize - mid >= 0) System.arraycopy(a, mid, r, mid - mid, arrSize - mid);
+    public <E extends Comparable<E>> void apply(List<E> list) {
+        apply(list, SortMethod.QUICK, SortDirection.ASCENDING);
+    }
 
-        mergeSort(l, mid);
-        mergeSort(r, arrSize - mid);
-        merge(a, l, r, mid, arrSize - mid);
+    public <E extends Comparable<E>> void apply(List<E> list, SortMethod method, SortDirection direction) {
+        switch (method) {
+            case SELECTION: {
+                selectionSort(list);
+                break;
+            }
+            case BUBBLE: {
+                bubbleSort(list);
+                break;
+            }
+            case INSERTION: {
+                insertionSort(list);
+                break;
+            }
+            case SHELL: {
+                shellSort(list);
+                break;
+            }
+            case MERGE: {
+                mergeSort(list);
+                break;
+            }
+            case QUICK: {
+                quickSort(list);
+                break;
+            }
+            case RADIX: {
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        if (direction.equals(SortDirection.DESCENDING)) {
+            reverseOrder(list);
+        }
+    }
+
+    public enum SortMethod {
+        SELECTION, BUBBLE, INSERTION, SHELL, MERGE, QUICK, RADIX
+    }
+
+    public enum SortDirection {
+        ASCENDING, DESCENDING
     }
 }

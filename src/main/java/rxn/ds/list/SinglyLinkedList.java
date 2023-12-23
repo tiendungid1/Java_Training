@@ -4,6 +4,7 @@ import rxn.ds.element.SimpleNode;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class SinglyLinkedList<E> implements List<E> {
@@ -305,5 +306,31 @@ public class SinglyLinkedList<E> implements List<E> {
         temp.next = null;
         size--;
         return temp.data;
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new ListIterator<>(this);
+    }
+
+    private static class ListIterator<E> implements Iterator<E> {
+
+        private SimpleNode<E> current;
+
+        public ListIterator(SinglyLinkedList<E> list) {
+            this.current = list.head;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public E next() {
+            SimpleNode<E> temp = current;
+            current = current.next;
+            return temp.data;
+        }
     }
 }
